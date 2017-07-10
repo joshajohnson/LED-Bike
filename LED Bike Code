@@ -1,0 +1,332 @@
+/*
+The associated writeup for this project can be found at 
+http://joshajohnson.com/150-leds-one-bike-pimping-my-commuter/
+
+Huge thanks to Tom Igoe and Josh David for their edge detection 
+and smooth RGB fading examples which I have used in this project.
+
+Their work can be found at http://www.arduino.cc/en/Tutorial/ButtonStateChange 
+and http://www.techhelpblog.com/2013/10/22/arduino-code-smooth-fading-rgb-leds-pwm/
+
+Any questions please get in contact with me through the contact options 
+on my website.
+ */
+
+// Define Constants: 
+const int buttonPin = 13;
+
+const int frontWhiteLed = 7; 
+const int frontBlueLed = 6;
+const int frontGreenLed = 5;
+const int frontRedLed = 3; 
+
+const int rearWhiteLed = 12;  
+const int rearBlueLed = 11;
+const int rearGreenLed = 10;
+const int rearRedLed = 9;   
+
+byte RED, GREEN, BLUE; 
+byte RED_A = 0;
+byte GREEN_A = 0; 
+byte BLUE_A = 0;
+int led_delay = 0;
+byte colour_count = 1;                //Count the colours out
+#define colour_count_max 7              //Set this to the max number of colours defined
+#define colour_delay 4000             //Define the delay between changing colours in ms
+#define time_at_colour 1000           //Time to stay on a colour in ms
+
+//Some Time values:
+unsigned long TIME_LED = 0;
+unsigned long TIME_COLOUR = 0;
+
+//Define Colours here:
+//Blue
+#define C1_R 0
+#define C1_G 0
+#define C1_B 255
+//Red
+#define C2_R 255
+#define C2_G 0
+#define C2_B 0
+//White
+#define C3_R 255
+#define C3_G 255
+#define C3_B 255
+//Orange
+#define C4_R 255
+#define C4_G 186
+#define C4_B 0
+//Light Blue
+#define C5_R 0
+#define C5_G 168
+#define C5_B 255
+//Purple
+#define C6_R 255
+#define C6_G 0
+#define C6_B 255
+//Yellow
+#define C7_R 255
+#define C7_G 250
+#define C7_B 0
+
+// Define Variables:
+int buttonPushCounter = 0;   // counter for the number of button presses
+int buttonState = 0;         // current state of the button
+int lastButtonState = 0;     // previous state of the button
+
+void setup() {
+  // initialize the button pin as a input:
+  pinMode(buttonPin, INPUT);
+  // initialize the LEDs as outputs:
+  pinMode(frontWhiteLed, OUTPUT);
+  pinMode(frontRedLed, OUTPUT);
+  pinMode(frontGreenLed, OUTPUT);
+  pinMode(frontBlueLed, OUTPUT);
+  pinMode(rearWhiteLed, OUTPUT);
+  pinMode(rearRedLed, OUTPUT);
+  pinMode(rearGreenLed, OUTPUT);
+  pinMode(rearBlueLed, OUTPUT);
+  RED = C1_R;
+  GREEN = C1_G;
+  BLUE = C1_B;
+  //Get the led_delay speed:
+  led_delay = (colour_delay - time_at_colour) / 255; 
+
+  analogWrite(frontGreenLed, 0);
+  analogWrite(frontRedLed, 0);
+  analogWrite(frontBlueLed, 0);
+  analogWrite(rearGreenLed, 0);
+  analogWrite(rearRedLed, 0);
+  analogWrite(rearBlueLed, 0);
+  // initialize serial communication:
+  Serial.begin(9600);
+}
+
+
+void loop() {
+  // read the pushbutton input pin:
+  buttonState = digitalRead(buttonPin);
+
+  // compare the buttonState to its previous state:
+  if (buttonState != lastButtonState) {
+    // if the state has changed, increment the counter:
+    if (buttonState == HIGH) { // if the current state is HIGH then the 
+                               // button went from off to on
+      buttonPushCounter++; // Increment the count of the variable
+      Serial.println("on");
+      Serial.print("number of button pushes:  ");
+      Serial.println(buttonPushCounter);
+    } else {
+      // if the current state is LOW then the button
+      // wend from on to off:
+      Serial.println("off");
+    }
+    // Delay a little bit to avoid bouncing
+    delay(50);
+  }
+  // save the current state as the last state,
+  //for next time through the loop
+  lastButtonState = buttonState;
+
+// switch cases depending on the value of buttonPushCounter:
+// Change these as required to suit your LED desires
+// Note: the button may need to be held down for a short time 
+//in case 7 to trigger a change
+switch (buttonPushCounter) {
+  case 0:
+    digitalWrite(frontWhiteLed, LOW);
+    digitalWrite(frontRedLed, LOW);
+    digitalWrite(frontGreenLed, LOW);
+    digitalWrite(frontBlueLed, LOW);
+    digitalWrite(rearWhiteLed, LOW);
+    digitalWrite(rearRedLed, LOW);
+    digitalWrite(rearGreenLed, LOW);
+    digitalWrite(rearBlueLed, LOW);
+    break;
+
+  case 1:
+    digitalWrite(frontWhiteLed, HIGH);
+    digitalWrite(frontRedLed, LOW);
+    digitalWrite(frontGreenLed, LOW);
+    digitalWrite(frontBlueLed, LOW);
+    digitalWrite(rearWhiteLed, HIGH);
+    digitalWrite(rearRedLed, LOW);
+    digitalWrite(rearGreenLed, LOW);
+    digitalWrite(rearBlueLed, LOW);
+    break;
+
+  case 2:
+    digitalWrite(frontWhiteLed, LOW);
+    digitalWrite(frontRedLed, HIGH);
+    digitalWrite(frontGreenLed, LOW);
+    digitalWrite(frontBlueLed, LOW);
+    digitalWrite(rearWhiteLed, LOW);
+    digitalWrite(rearRedLed, HIGH);
+    digitalWrite(rearGreenLed, LOW);
+    digitalWrite(rearBlueLed, LOW);
+    break;
+
+  case 3:
+    digitalWrite(frontWhiteLed, LOW);
+    digitalWrite(frontRedLed, LOW);
+    digitalWrite(frontGreenLed, HIGH);
+    digitalWrite(frontBlueLed, LOW);
+    digitalWrite(rearWhiteLed, LOW);
+    digitalWrite(rearRedLed, LOW);
+    digitalWrite(rearGreenLed, HIGH);
+    digitalWrite(rearBlueLed, LOW);
+    break;
+
+  case 4:
+    digitalWrite(frontWhiteLed, LOW);
+    digitalWrite(frontRedLed, LOW);
+    digitalWrite(frontGreenLed, LOW);
+    digitalWrite(frontBlueLed, HIGH);
+    digitalWrite(rearWhiteLed, LOW);
+    digitalWrite(rearRedLed, LOW);
+    digitalWrite(rearGreenLed, LOW);
+    digitalWrite(rearBlueLed, HIGH);
+    break;
+
+  case 5:
+    digitalWrite(frontWhiteLed, HIGH);
+    digitalWrite(frontRedLed, LOW);
+    digitalWrite(frontGreenLed, LOW);
+    digitalWrite(frontBlueLed, LOW);
+    digitalWrite(rearWhiteLed, LOW);
+    digitalWrite(rearRedLed, HIGH);
+    digitalWrite(rearGreenLed, LOW);
+    digitalWrite(rearBlueLed, LOW);
+    break;
+
+  case 6:
+    if(millis() - TIME_LED >= led_delay){
+    TIME_LED = millis();
+
+    //Run the LED Function to check and adjust the values:
+    LED();
+  }
+
+    if(millis() - TIME_COLOUR >= colour_delay){
+    TIME_COLOUR = millis();
+
+    //Run the Colour Change function:
+    COLOUR();
+  }
+    break;    
+
+  case 7:
+    strobe();
+    break;
+
+  case 8:
+    buttonPushCounter = 0;
+    break;
+  }
+}
+
+void LED()
+{
+
+  //Check Values and adjust "Active" Value:
+  if(RED != RED_A){
+    if(RED_A > RED) RED_A = RED_A - 1;
+    if(RED_A < RED) RED_A++;
+  }
+  if(GREEN != GREEN_A){
+    if(GREEN_A > GREEN) GREEN_A = GREEN_A - 1;
+    if(GREEN_A < GREEN) GREEN_A++;
+  }
+  if(BLUE != BLUE_A){
+    if(BLUE_A > BLUE) BLUE_A = BLUE_A - 1;
+    if(BLUE_A < BLUE) BLUE_A++;
+  }
+
+  //Assign modified values to the pwm outputs for each colour led:
+  digitalWrite(frontWhiteLed, LOW);
+  digitalWrite(rearWhiteLed, LOW);
+  analogWrite(frontRedLed, RED_A);
+  analogWrite(frontGreenLed, GREEN_A);
+  analogWrite(frontBlueLed, BLUE_A);
+  analogWrite(rearRedLed, RED_A);
+  analogWrite(rearGreenLed, GREEN_A);
+  analogWrite(rearBlueLed, BLUE_A);
+}
+
+void COLOUR()
+{
+
+  //Increment the colour by one or go back to 1 if maxed out:
+  if(colour_count < colour_count_max) colour_count++;
+  else colour_count = 1;
+
+  if(colour_count == 1){
+    RED = C1_R;
+    GREEN = C1_G;
+    BLUE = C1_B;
+  } else if(colour_count == 2){
+    RED = C2_R;
+    GREEN = C2_G;
+    BLUE = C2_B;
+  } else if(colour_count == 3){
+    RED = C3_R;
+    GREEN = C3_G;
+    BLUE = C3_B;
+  } else if(colour_count == 4){
+    RED = C4_R;
+    GREEN = C4_G;
+    BLUE = C4_B;
+  } else if(colour_count == 5){
+    RED = C5_R;
+    GREEN = C5_G;
+    BLUE = C5_B;
+  } else if(colour_count == 6){
+    RED = C6_R;
+    GREEN = C6_G;
+    BLUE = C6_B;
+  } else if(colour_count == 7){
+    RED = C7_R;
+    GREEN = C7_G;
+    BLUE = C7_B;
+  }
+}
+
+// Flashes through all the options very quickly:
+void strobe (){
+    digitalWrite(frontWhiteLed, HIGH);
+    digitalWrite(frontRedLed, LOW);
+    digitalWrite(frontGreenLed, LOW);
+    digitalWrite(frontBlueLed, LOW);
+    digitalWrite(rearWhiteLed, HIGH);
+    digitalWrite(rearRedLed, LOW);
+    digitalWrite(rearGreenLed, LOW);
+    digitalWrite(rearBlueLed, LOW);
+    delay(100);
+    digitalWrite(frontWhiteLed, LOW);
+    digitalWrite(frontRedLed, HIGH);
+    digitalWrite(frontGreenLed, LOW);
+    digitalWrite(frontBlueLed, LOW);
+    digitalWrite(rearWhiteLed, LOW);
+    digitalWrite(rearRedLed, HIGH);
+    digitalWrite(rearGreenLed, LOW);
+    digitalWrite(rearBlueLed, LOW);
+    delay(100);
+    digitalWrite(frontWhiteLed, LOW);
+    digitalWrite(frontRedLed, LOW);
+    digitalWrite(frontGreenLed, HIGH);
+    digitalWrite(frontBlueLed, LOW);
+    digitalWrite(rearWhiteLed, LOW);
+    digitalWrite(rearRedLed, LOW);
+    digitalWrite(rearGreenLed, HIGH);
+    digitalWrite(rearBlueLed, LOW);
+    delay(100);
+    digitalWrite(frontWhiteLed, LOW);
+    digitalWrite(frontRedLed, LOW);
+    digitalWrite(frontGreenLed, LOW);
+    digitalWrite(frontBlueLed, HIGH);
+    digitalWrite(rearWhiteLed, LOW);
+    digitalWrite(rearRedLed, LOW);
+    digitalWrite(rearGreenLed, LOW);
+    digitalWrite(rearBlueLed, HIGH);
+    delay(100);
+}
